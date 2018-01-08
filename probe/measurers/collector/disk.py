@@ -16,7 +16,8 @@ class SizeOnDisk(object):
         return 'size_on_disk'
 
     def value(self):
-        apk_size = adb.shell('du -s /data/data/{}'.format(runtime.get_package_name())).get('stdout')[0].split()[0]
+        s = runtime.get_package_name()
+        apk_size = adb.shell('run-as {} du -s /data/data/{}'.format(s, s)).get('stdout')[0].split()[0]
 
         # logger.debug(pprint.pprint(map(str.strip, adb.shell('du /data/data/{}'.format(runtime.get_package_name())).get('stdout'))))
         return int(apk_size) * 1024

@@ -15,8 +15,44 @@ class ApkSize(object):
         return 'apk_size'
 
     def value(self):
-        apk_size = adb.shell('ls -l data/app | grep {}'.format(runtime.get_package_name())).get('stdout')[0].split()[3]
+        s = runtime.get_package_name()
+        output = adb.shell('run-as {} du -s /data/data/{}'.format(s, s)).get('stdout')
+        apk_size = output[0].split()[0]
+        # print 'apk_size:%s' % apk_size
         return int(apk_size)
+
+'''
+class BatteryUsage(object):
+    """
+    Cpu usage - user space (in ticks)
+    """
+
+    __metaclass__ = SnapshotRegistrar
+
+    def __init__(self):
+        pass
+
+    def name(self):
+        """
+        the key of this measurement in the output dict
+        """
+
+        return 'battery_usage'
+
+    def value(self):
+        """
+        the value of this measurement in the output dict
+        """
+
+        s = runtime.get_package_name()
+        output = adb.shell('dumpsys batterystats --charged {}'.format(s)).get('stdout')
+        u = output[0].split()[0]
+        # print 'apk_size:%s' % apk_size
+        return int(u)
+
+
+'''
+
 
 
 class DexMethodCount(object):
@@ -29,7 +65,9 @@ class DexMethodCount(object):
 
     def value(self):
         if self.method_count == 0:
-            output = adb.exec_command('java -jar libs/dex-method-counts.jar {}'.format(adb.get_apk_path())).get('stdout')[2].split(':')[1].strip()
-            self.method_count = int(output)
+            output = adb.exec_command('java -jar libs/dex-method-counts.jar {}'.format(adb.get_apk_path())).get('stdout')
+            #print output
+            count = output[-1].split(':')[1].strip()
+            self.method_count = int(count)
 
         return self.method_count

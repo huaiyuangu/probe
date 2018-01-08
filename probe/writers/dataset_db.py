@@ -14,7 +14,7 @@ class Dataset(object):
 
     def __init__(self):
         self.db = None
-        connection_string = os.getenv('PROBE_DB_CONNECTION_STRING', "sqlite:///mydatabase.db")
+        connection_string = os.getenv('PROBE_DB_CONNECTION_STRING', "postgresql://postgres:123456@10.89.24.97/redash")
         try:
             logger.info('Trying to connect to db...'),
             self.db = dataset.connect(connection_string)
@@ -39,12 +39,12 @@ class Dataset(object):
                 finally:
                     os.remove(file_path)
 
-    def read_probe_json(self, test_name):
-        probe_reader = ProbeReader(test_name)
+    def read_probe_json(self, test_name, start_date):
+        probe_reader = ProbeReader(start_date, test_name)
         self.read_json('Probe', probe_reader)
 
-    def read_collector_json(self, test_name):
-        collector_reader = CollectorReader(test_name)
+    def read_collector_json(self, test_name, start_date):
+        collector_reader = CollectorReader(start_date, test_name)
         self.read_json('Collector', collector_reader)
 
 instance = Dataset()

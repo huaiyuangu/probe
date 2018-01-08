@@ -24,6 +24,15 @@ class Tricorder():
 
         self.probe_instances = list()
         self.collector_instances = list()
+        import datetime
+        self.datetime = datetime.datetime.strptime('Jun 8 2018 2:00PM', '%b %d %Y %I:%M%p')
+
+    def reset(self):
+        import datetime
+        self.datetime += datetime.timedelta(seconds=10)
+
+        self.probe_instances = list()
+        self.collector_instances = list()
 
     def record_probe(self, probe_output):
         self.probe_instances.append(probe_output)
@@ -77,9 +86,9 @@ class Tricorder():
         """Compare results with previous runs"""
         test_successful = True
         error_log = ''
-        logger.debug('Probe: calculating previous runs statistics, will fail this run if an anomaly is found, '
-                    'Grace factor is: {}'.format(self.GRACE_FACTOR))
-        logger.debug('================================================================================\n')
+        #logger.debug('Probe: calculating previous runs statistics, will fail this run if an anomaly is found, '
+        #            'Grace factor is: {}'.format(self.GRACE_FACTOR))
+        #logger.debug('================================================================================\n')
 
         aggregated = self.aggregate_results(outputs_list)
 
@@ -94,9 +103,9 @@ class Tricorder():
             std = numbers.pstdev(measurements)
             mean = numbers.get_mean(measurements)
 
-            logger.debug('Evaluating std for \'{}\': '
-                        'mean: {}, std: {}, previous results: {}'.format(key, "%.2f" % mean, "%.2f" % std,
-                                                                         measurements))
+            #logger.debug('Evaluating std for \'{}\': '
+             #           'mean: {}, std: {}, previous results: {}'.format(key, "%.2f" % mean, "%.2f" % std,
+             #                                                            measurements))
 
             if key in end_result:
                 measurement = end_result[key]
@@ -144,8 +153,8 @@ class Tricorder():
             i += 1
 
         ds_writer = dataset_db.instance
-        ds_writer.read_probe_json(self.test_name)
-        ds_writer.read_collector_json(self.test_name)
+        ds_writer.read_probe_json(self.test_name, self.datetime)
+        ds_writer.read_collector_json(self.test_name, self.datetime)
 
         return normalized_collector_dump
 

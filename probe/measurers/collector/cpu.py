@@ -35,3 +35,4 @@ class CpuTicksKernel(CpuTicks):
 
     def value(self):
         return super(self.__class__, self).value(14)
+

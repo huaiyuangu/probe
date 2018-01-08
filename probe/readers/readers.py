@@ -18,14 +18,15 @@ class Reader(object):
 
 class CollectorReader(Reader):
 
-    def __init__(self, test_name=None):
+    def __init__(self, start_date, test_name=None):
         self.flattened = dict()
         self.test_name = test_name
+        self.start_date = start_date
 
     def write_to_table(self, data, db):
         table = db['collector{}'.format(('_' + self.test_name) if self.test_name else '')]
         flattened = self.flatten(data)
-        flattened['created_at'] = datetime.datetime.now()
+        flattened['created_at'] = self.start_date
 
         try:
             table.insert(flattened)
@@ -47,12 +48,12 @@ class CollectorReader(Reader):
 
 class ProbeReader(Reader):
 
-    def __init__(self, test_name=None):
+    def __init__(self, start_date, test_name=None):
         self.test_name = test_name
+        self.start_date = start_date
 
     def write_to_table(self, data, db):
         table = db['probe{}'.format(('_' + self.test_name) if self.test_name else '')]
-        created_at = datetime.datetime.now()
 
         try:
             for key in data['timestamped_heapsize']:
@@ -61,7 +62,7 @@ class ProbeReader(Reader):
                                     timestamp=key['timestamp'],
                                     heapsize=key['heapsize'],
                                     allocated=key['allocated'],
-                                    created_at=created_at))
+                                    created_at=self.start_date))
             db.commit()
         except Exception:
             db.rollback()

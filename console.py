@@ -14,18 +14,22 @@ from probe.measurers.collector import *
 __author__ = 'rotem'
 
 
-@click.command()
-@click.option('--package',      default='',                         help='Package name to run Probe on')
-@click.option('--activity',     default='=',                        help='Activity to restart within that package')
-@click.option('--apk-path',     default=None,                       help='Path to installed APK')
-@click.option('--repeat-count', default=8,                          help='Times to repeat the test')
-@click.option('--timeout',      default=15,                         help='probe will stop when logcat output is silent for that duration')
-@click.option('--device-id',    default=None,                       help='device_id to send commands to')
+#
+#
+# @click.command()
+# @click.option('--package',      default='',                         help='Package name to run Probe on')
+# @click.option('--activity',     default='=',                        help='Activity to restart within that package')
+# @click.option('--apk-path',     default=None,                       help='Path to installed APK')
+# @click.option('--repeat-count', default=8,                          help='Times to repeat the test')
+# @click.option('--timeout',      default=15,                         help='probe will stop when logcat output is silent for that duration')
+# @click.option('--device-id',    default=None,                       help='device_id to send commands to')
+
+
 def main(package, activity, repeat_count, apk_path, timeout, device_id):
 
     setup_logging()
 
-    tricorder = Tricorder(package)
+    tricorder = Tricorder(package, 'moto_nexus_6')
     adb.set_apk_path(apk_path)
 
     for x in range(repeat_count):
@@ -34,12 +38,13 @@ def main(package, activity, repeat_count, apk_path, timeout, device_id):
         logger.info('\ninstance no %s' % x)
         probe.start(timeout)
 
+    """
     normalized_result = tricorder.dump()
     previous_results = tricorder.get_previous_runs(normalized_result)
-
+    
     # compare results with previous results (from db)
     build_successful, error_log = tricorder.compare_with_previous_results(previous_results, normalized_result)
-
+    
     # Fail if results are above the defined threshold
     if build_successful:
         logger.info('Probe: run OK. All measurements from current in instance are within threshold bounds')
@@ -47,7 +52,7 @@ def main(package, activity, repeat_count, apk_path, timeout, device_id):
         logger.error('Probe: run failed! Summarizing failed tests:')
         logger.error('\n' + error_log)
     sys.exit(0 if build_successful else 1)
-
+    """
     # trico = Tricorder(package, 'test')
     # adb.logcat_clean()
     # probe = Probe(trico, package, activity, device_id)
@@ -58,8 +63,8 @@ def main(package, activity, repeat_count, apk_path, timeout, device_id):
     # sleep(2)
     # probe.stop()
 
-
-
-
 if __name__ == "__main__":
-    main()
+    package, activity, repeat_count, apk_path, timeout, device_id = \
+        ('com.hulu.debug', 'com.hulu.features.splash.SplashActivity', 1,
+         '/Users/huaiyuan.gu/HD/github/probe/app-production-debug-async.apk', 30, 'ZY2234HGTB')
+    main(package, activity, repeat_count, apk_path, timeout, device_id)
